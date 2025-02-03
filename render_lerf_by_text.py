@@ -184,10 +184,10 @@ def render_set(model_path, name, iteration, views, gaussians, pipeline, backgrou
                     view.image_name + f"_{target_text[t_i]}.png"))
         
 def render_sets(dataset : ModelParams, iteration : int, pipeline : PipelineParams, skip_train : bool, skip_test : bool,
-                scene_name: str):
+                scene_name: str, dataset_name: str):
     with torch.no_grad():
         gaussians = GaussianModel(dataset.sh_degree)
-        scene = Scene(dataset, gaussians, load_iteration=iteration, shuffle=False)
+        scene = Scene(dataset, gaussians, load_iteration=iteration, shuffle=False, dataset_name=dataset_name, scene_name=scene_name)
 
         # bg_color = [1,1,1] if dataset.white_background else [0, 0, 0]
         bg_color = [1,1,1]
@@ -211,6 +211,7 @@ if __name__ == "__main__":
     parser.add_argument("--quiet", action="store_true")
     parser.add_argument("--scene_name", type=str, choices=["waldo_kitchen", "ramen", "figurines", "teatime"],
                         help="Specify the scene_name from: figurines, teatime, ramen, waldo_kitchen")
+    parser.add_argument("--dataset_name", type=str, default = None)
     args = get_combined_args(parser)
     print("Rendering " + args.model_path)
 
@@ -220,4 +221,4 @@ if __name__ == "__main__":
     # Initialize system state (RNG)
     safe_state(args.quiet)
 
-    render_sets(model.extract(args), args.iteration, pipeline.extract(args), args.skip_train, args.skip_test, args.scene_name)
+    render_sets(model.extract(args), args.iteration, pipeline.extract(args), args.skip_train, args.skip_test, args.scene_name, args.dataset_name)

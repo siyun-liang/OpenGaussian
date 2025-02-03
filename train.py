@@ -155,7 +155,7 @@ def separation_loss(feat_mean_stack, iteration):
     return loss
 
 def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoint_iterations, \
-             checkpoint, debug_from):
+             checkpoint, debug_from, dataset_name=None, scene_name=None):
     iterations = [opt.start_ins_feat_iter, opt.start_leaf_cb_iter, opt.start_root_cb_iter]
     saving_iterations.extend(iterations)
     checkpoint_iterations.extend(iterations)
@@ -163,7 +163,7 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
     first_iter = 0
     tb_writer = prepare_output_and_logger(dataset)
     gaussians = GaussianModel(dataset.sh_degree)
-    scene = Scene(dataset, gaussians)
+    scene = Scene(dataset, gaussians, dataset_name=dataset_name, scene_name=scene_name)
     gaussians.training_setup(opt)
     if checkpoint:
         (model_params, first_iter) = torch.load(checkpoint)
@@ -997,6 +997,8 @@ if __name__ == "__main__":
     parser.add_argument("--quiet", action="store_true")
     parser.add_argument("--checkpoint_iterations", nargs="+", type=int, default=[])
     parser.add_argument("--start_checkpoint", type=str, default = None)
+    parser.add_argument("--dataset_name", type=str, default = None)
+    parser.add_argument("--scene_name", type=str, default = None)
     args = parser.parse_args(sys.argv[1:])
     args.save_iterations.append(args.iterations)
     args.checkpoint_iterations.append(args.iterations)
@@ -1011,7 +1013,7 @@ if __name__ == "__main__":
     torch.autograd.set_detect_anomaly(args.detect_anomaly)
     training(lp.extract(args), op.extract(args), pp.extract(args), \
              args.test_iterations, args.save_iterations, args.checkpoint_iterations, \
-             args.start_checkpoint, args.debug_from)
+             args.start_checkpoint, args.debug_from, args.dataset_name, args.scene_name)
 
     # All done
     print("\nTraining complete.")
