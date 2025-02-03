@@ -18,7 +18,7 @@ def calculate_iou(mask1, mask2):
         return 0
     return intersection / union
 
-def evalute(gt_base, pred_base, scene_name):
+def evalute(gt_base, pred_base, scene_name, output_dir=None):
     scene_gt_frames = {
         "waldo_kitchen": ["frame_00053", "frame_00066", "frame_00089", "frame_00140", "frame_00154"],
         "ramen": ["frame_00006", "frame_00024", "frame_00060", "frame_00065", "frame_00081", "frame_00119", "frame_00128"],
@@ -57,11 +57,22 @@ def evalute(gt_base, pred_base, scene_name):
     print(f"Average IoU: {average_iou:.4f}")
     print(f"Acc@0.25: {count_iou_025/total_count:.4f}")
     print(f"Acc@0.5: {count_iou_05/total_count:.4f}")
+    
+    if output_dir is not None:
+        os.makedirs(output_dir, exist_ok=True)
+        log_file_path = os.path.join(output_dir, "result.txt")
+        with open(log_file_path, 'w') as log_file:
+            log_file.write(f"mean iou: {average_iou:.4f}\n")
+            log_file.write(f"Acc@0.25: {count_iou_025/total_count:.4f}\n")
+            log_file.write(f"Acc@0.5: {count_iou_05/total_count:.4f}")
 
 if __name__ == "__main__":
     parser = ArgumentParser("Compute LeRF IoU")
     parser.add_argument("--scene_name", type=str, choices=["waldo_kitchen", "ramen", "figurines", "teatime"],
                         help="Specify the scene_name from: figurines, teatime, ramen, waldo_kitchen")
+    parser.add_argument("--output_dir", type=str, default=None)
+    parser.add_argument("--gt_dir", type=str, required=True)
+    parser.add_argument("--pred_dir", type=str, default=None)
     args = parser.parse_args()
     if not args.scene_name:
         parser.error("The --scene_name argument is required and must be one of: waldo_kitchen, ramen, figurines, teatime")
@@ -70,4 +81,4 @@ if __name__ == "__main__":
     path_gt = "/gdata/cold1/wuyanmin/OpenGaussian/data/lerf_ovs/label/waldo_kitchen/gt"
     # renders_cluster_silhouette is the predicted mask
     path_pred = "output/xxxxxxxx-x/text2obj/ours_70000/renders_cluster_silhouette"
-    evalute(path_gt, path_pred, args.scene_name)
+    evalute(args.gt_dir, args.pred_dir, args.scene_name, args.output_dir)
