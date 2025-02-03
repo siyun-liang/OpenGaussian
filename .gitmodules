@@ -1,0 +1,3 @@
+[submodule "submodules/ashawkey-diff-gaussian-rasterization"]
+	path = submodules/ashawkey-diff-gaussian-rasterization
+	url = git@github.com:ashawkey/diff-gaussian-rasterization.git
